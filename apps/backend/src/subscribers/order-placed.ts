@@ -1,5 +1,6 @@
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 import { Resend } from "resend"
+import crypto from "crypto"
 
 const escapeHtml = (value: unknown) =>
   String(value ?? "")
@@ -21,6 +22,100 @@ const formatImageUrl = (url?: string) => {
   return `${backendUrl}${url.startsWith("/") ? url : `/${url}`}`
 }
 
+const sha256 = (value?: string | null) => {
+  if (!value) return undefined
+
+  return crypto
+    .createHash("sha256")
+    .update(value.trim().toLowerCase())
+    .digest("hex")
+}
+
+const removeUndefined = (obj: any): any => {
+  if (Array.isArray(obj)) {
+    return obj.map(removeUndefined).filter((v) => v !== undefined)
+  }
+
+  if (obj && typeof obj === "object") {
+    return Object.fromEntries(
+      Object.entries(obj)
+        .map(([key, value]) => [key, removeUndefined(value)])
+        .filter(([, value]) => value !== undefined)
+    )
+  }
+
+  return obj
+}
+
+const sendMetaPurchaseEvent = async (order: any) => {
+  const pixelId = process.env.META_PIXEL_ID
+  const accessToken = process.env.META_ACCESS_TOKEN
+
+  if (!pixelId || !accessToken) {
+    console.log("Meta CAPI ignoré : META_PIXEL_ID ou META_ACCESS_TOKEN manquant")
+    return
+  }
+
+  const storeUrl = process.env.STORE_URL || "https://mizucat.ch"
+  const cleanStoreUrl = storeUrl.replace(/\/$/, "")
+  const countryCode =
+    order.shipping_address?.country_code?.toLowerCase() ||
+    process.env.STORE_COUNTRY_CODE ||
+    "ch"
+
+  const eventId = `purchase_${order.id}`
+
+  const payload = removeUndefined({
+    data: [
+      {
+        event_name: "Purchase",
+        event_time: Math.floor(Date.now() / 1000),
+        event_id: eventId,
+        action_source: "website",
+        event_source_url: `${cleanStoreUrl}/${countryCode}/account`,
+        user_data: {
+          em: order.email ? [sha256(order.email)] : undefined,
+        },
+        custom_data: {
+          currency: (order.currency_code || "CHF").toUpperCase(),
+          value: Number(order.total || 0),
+          order_id: order.id,
+          content_type: "product",
+          content_ids:
+            order.items?.map((item: any) => item.variant_id || item.id) || [],
+          contents:
+            order.items?.map((item: any) => ({
+              id: item.variant_id || item.id,
+              quantity: item.quantity,
+              item_price: Number(item.unit_price || 0),
+            })) || [],
+        },
+      },
+    ],
+    test_event_code: process.env.META_TEST_EVENT_CODE || undefined,
+  })
+
+  const response = await fetch(
+    `https://graph.facebook.com/v23.0/${pixelId}/events?access_token=${accessToken}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    }
+  )
+
+  const result = await response.json()
+
+  if (!response.ok) {
+    console.error("Erreur Meta CAPI Purchase:", result)
+    return
+  }
+
+  console.log("Meta CAPI Purchase envoyé:", result)
+}
+
 export default async function orderPlacedHandler({
   event,
   container,
@@ -31,19 +126,22 @@ export default async function orderPlacedHandler({
   const { data } = await query.graph({
     entity: "order",
     fields: [
-  "id",
-  "display_id",
-  "email",
-  "currency_code",
-  "total",
-  "shipping_address.country_code",
-  "shipping_methods.name",
-  "items.title",
-  "items.quantity",
-  "items.thumbnail",
-  "items.variant.images.url",
-  "items.product.images.url",
-],
+      "id",
+      "display_id",
+      "email",
+      "currency_code",
+      "total",
+      "shipping_address.country_code",
+      "shipping_methods.name",
+      "items.id",
+      "items.title",
+      "items.quantity",
+      "items.unit_price",
+      "items.variant_id",
+      "items.thumbnail",
+      "items.variant.images.url",
+      "items.product.images.url",
+    ],
     filters: {
       id: event.data.id,
     },
@@ -56,14 +154,20 @@ export default async function orderPlacedHandler({
     return
   }
 
+  try {
+    await sendMetaPurchaseEvent(order)
+  } catch (error) {
+    console.error("Meta CAPI Purchase a échoué, mais l'email continue:", error)
+  }
+
   const storeUrl = process.env.STORE_URL || "http://localhost:8000"
   const cleanStoreUrl = storeUrl.replace(/\/$/, "")
-const countryCode =
-  order.shipping_address?.country_code?.toLowerCase() ||
-  process.env.STORE_COUNTRY_CODE ||
-  "ch"
+  const countryCode =
+    order.shipping_address?.country_code?.toLowerCase() ||
+    process.env.STORE_COUNTRY_CODE ||
+    "ch"
 
-const orderUrl = `${cleanStoreUrl}/${countryCode}/account`
+  const orderUrl = `${cleanStoreUrl}/${countryCode}/account`
 
   const deliveryEstimate = escapeHtml(
     order.shipping_methods?.[0]?.name || "Livraison standard"
@@ -74,12 +178,11 @@ const orderUrl = `${cleanStoreUrl}/${countryCode}/account`
       ?.filter(Boolean)
       .map((item: any) => {
         const imageUrl = formatImageUrl(
-  item?.variant?.images?.[0]?.url ||
-  item?.product?.images?.[0]?.url ||
-  item?.thumbnail
-)
+          item?.variant?.images?.[0]?.url ||
+            item?.product?.images?.[0]?.url ||
+            item?.thumbnail
+        )
         const title = escapeHtml(item?.title || "Produit")
-        const quantity = Number(item?.quantity || 1)
 
         return `
           <tr>
