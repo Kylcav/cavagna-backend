@@ -54,3 +54,22 @@ yarn-error.log*
 ehthumbs.db
 Thumbs.db
 **/.DS_Store
+
+# Medusa
+.medusa/
+
+# Uploads
+uploads/
+public/uploads/
+
+# SQLite
+*.sqlite
+*.sqlite3
+*.db
+
+# Redis
+dump.rdb
+
+# Logs
+logs/
+*.log
