@@ -102,7 +102,7 @@ export default async function setup({ container }: { container: MedusaContainer 
     entity: "shipping_profile",
     fields: ["id", "name"],
   })
-  let profile = profiles.find((p: any) => p.name === PROFILE_NAME)
+  let profile: any = profiles.find((p: any) => p.name === PROFILE_NAME)
   if (!profile) {
     const { result } = await createShippingProfilesWorkflow(container).run({
       input: { data: [{ name: PROFILE_NAME, type: "custom" }] },
@@ -134,7 +134,7 @@ export default async function setup({ container }: { container: MedusaContainer 
   if (opts.some((o: any) => o.shipping_profile_id === profile.id)) {
     logger.info("Options déjà présentes sur le profil dédié, rien à créer.")
   } else {
-    const rules = [
+    const rules: any[] = [
       { attribute: "enabled_in_store", value: "true", operator: "eq" },
       { attribute: "is_return", value: "false", operator: "eq" },
     ]
