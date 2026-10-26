@@ -137,16 +137,13 @@ export default async function add_soie({
             "Plus douce pour la peau et les cheveux : moins de frottements, moins de frisottis, " +
             "moins de plis d'oreiller au réveil. Thermorégulante et hypoallergénique. " +
             "Format 48 × 74 cm, fermeture enveloppe. Disponible en 12 coloris.",
+          // Images LOCALES (servies par le storefront depuis public/soie).
+          thumbnail: "/soie/soie-hero.jpg",
           images: [
-            {
-              url: "https://cf.cjdropshipping.com/20200812/2295286953929.jpg",
-            },
-            {
-              url: "https://cf.cjdropshipping.com/20200812/1742659521809.jpg",
-            },
-            {
-              url: "https://cf.cjdropshipping.com/20200812/2304461737237.jpg",
-            },
+            { url: "/soie/soie-hero.jpg" },
+            { url: "/soie/soie-texture.jpg" },
+            { url: "/soie/soie-detail.jpg" },
+            { url: "/soie/soie-champagne.jpg" },
           ],
           options: [
             { title: "Couleur", values: COLORS.map((c) => c.fr) },

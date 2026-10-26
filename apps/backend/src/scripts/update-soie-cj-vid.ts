@@ -69,10 +69,26 @@ export default async function updateSoieCjVid({
   })
 
   await updateProductsWorkflow(container).run({
-    input: { products: [{ id: product.id, variants }] },
+    input: {
+      products: [
+        {
+          id: product.id,
+          // Images LOCALES (servies par le storefront) : fiables et ne révèlent
+          // pas le fournisseur CJ. Remplace les URLs CJ bloquées par next/image.
+          thumbnail: "/soie/soie-hero.jpg",
+          images: [
+            { url: "/soie/soie-hero.jpg" },
+            { url: "/soie/soie-texture.jpg" },
+            { url: "/soie/soie-detail.jpg" },
+            { url: "/soie/soie-champagne.jpg" },
+          ],
+          variants,
+        },
+      ],
+    },
   })
 
   logger.info(
-    `✅ VID CJ ajoutés sur "${product.title}" : ${patched} variante(s) mises à jour, ${skipped} ignorée(s).`
+    `✅ Soie mise à jour : VID sur ${patched} variante(s) (${skipped} ignorée(s)), thumbnail + images locales posées.`
   )
 }
