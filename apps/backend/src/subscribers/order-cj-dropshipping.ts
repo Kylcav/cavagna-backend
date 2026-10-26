@@ -33,6 +33,25 @@ const COUNTRY_NAMES: Record<string, string> = {
   PT: "Portugal",
 }
 
+// Taie en soie (/soie) : nom de coloris affiché -> VID CJ (id de variante).
+// CJ createOrderV2 attend un VID. Sert à résoudre la 2e couleur d'un "Lot de 2"
+// bicolore (stockée en metadata de ligne par le storefront) pour l'envoyer
+// automatiquement à CJ.
+const SOIE_COLOR_CJVID: Record<string, string> = {
+  "Blanc nacré": "26DABF97-DB06-4913-BFD7-58D4C6B3D838",
+  Champagne: "41DCEC1F-98D1-4C52-8F6B-6A1834056599",
+  "Or rose": "3C1E75A2-5A8F-4267-88DE-B1EF67E462D5",
+  "Rose poudré": "9B4C5177-3756-4819-8A97-BBB82BDD542C",
+  Rose: "D769106F-6384-4B6D-AC6E-84E5C0172558",
+  "Gris perle": "C323E94B-E2E7-4452-B0DA-C4757113692F",
+  "Gris anthracite": "B9DCC132-64AD-4597-B75E-49270703356A",
+  "Bleu nuit": "B4B9115C-ABC8-4824-BB02-5D2DF30E0030",
+  "Bleu paon": "C84A6096-D785-4545-BFD6-B9E20797A051",
+  Émeraude: "E58D7472-94EE-4568-AECF-ECCFB993B2F8",
+  Terracotta: "394F73C7-C9A0-45EC-B08E-5D55788CB68F",
+  "Rouge rubis": "FACD0B44-B97E-4E78-AC8C-B0091F4F1952",
+}
+
 export default async function orderCjDropshippingHandler({
   event,
   container,
@@ -64,6 +83,7 @@ export default async function orderCjDropshippingHandler({
       "shipping_address.phone",
       "items.id",
       "items.quantity",
+      "items.metadata",
       "items.variant_sku",
       "items.variant.id",
       "items.variant.sku",
@@ -88,6 +108,7 @@ export default async function orderCjDropshippingHandler({
   for (const item of order.items || []) {
     if (!item) continue
     const meta = (item?.variant?.metadata || {}) as Record<string, any>
+    const lineMeta = (item?.metadata || {}) as Record<string, any>
     const vid = meta.cj_vid ? String(meta.cj_vid) : undefined
     const sku = meta.cj_sku
       ? String(meta.cj_sku)
@@ -95,10 +116,35 @@ export default async function orderCjDropshippingHandler({
 
     if (!vid && !sku) continue // article non dropshippé CJ -> ignoré
 
+    const lineQty = item.quantity || 1
+    // cj_qty : nombre d'unités CJ par article vendu (ex. "Lot de 2" -> 2).
+    const cjQty = Math.max(1, Number(meta.cj_qty) || 1)
+
+    // Lot de 2 bicolore : la 2e couleur (metadata de ligne du storefront)
+    // diffère de la 1re -> on envoie 1 de chaque couleur à CJ, automatiquement.
+    const couleur1 = lineMeta.couleur_1 ? String(lineMeta.couleur_1) : undefined
+    const couleur2 = lineMeta.couleur_2 ? String(lineMeta.couleur_2) : undefined
+    const vid2 =
+      couleur2 && couleur2 !== couleur1
+        ? SOIE_COLOR_CJVID[couleur2]
+        : undefined
+
+    // Lot de 2 bicolore : 1x couleur 1 (vid de la variante) + 1x couleur 2
+    // (vid mappé), par article vendu. Entièrement automatique.
+    if (cjQty === 2 && vid && vid2) {
+      products.push({ vid, quantity: lineQty, storeLineItemId: item.id })
+      products.push({
+        vid: vid2,
+        quantity: lineQty,
+        storeLineItemId: `${item.id}-2`,
+      })
+      continue
+    }
+
     products.push({
       vid,
       sku: vid ? undefined : sku, // si on a le vid, on n'envoie pas le sku
-      quantity: item.quantity,
+      quantity: lineQty * cjQty, // honore "Lot de 2" (même couleur) -> 2 unités
       storeLineItemId: item.id,
     })
   }

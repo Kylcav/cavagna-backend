@@ -25,20 +25,27 @@ const HANDLE = "taie-soie-mulberry"
 const PRICE_UNITE = 59
 const PRICE_DUO = 89
 
-// 12 coloris : nom affiché (FR) -> coloris CJ (suffixe du SKU) + pastille (hex).
-const COLORS: { fr: string; cj: string; code: string; hex: string }[] = [
-  { fr: "Blanc nacré", cj: "Noble White", code: "BLNC", hex: "#EFEAE0" },
-  { fr: "Champagne", cj: "Champagne gold", code: "CHMP", hex: "#E3D1AE" },
-  { fr: "Or rose", cj: "Rose gold", code: "ORRS", hex: "#E3B7A6" },
-  { fr: "Rose poudré", cj: "Cherry blossom powder", code: "RSPD", hex: "#EBC7CC" },
-  { fr: "Rose", cj: "Pink", code: "ROSE", hex: "#E48AA6" },
-  { fr: "Gris perle", cj: "Metal grey", code: "GRPL", hex: "#C7C5C1" },
-  { fr: "Gris anthracite", cj: "Space grey", code: "GRAN", hex: "#65656A" },
-  { fr: "Bleu nuit", cj: "Noble Blue", code: "BLNT", hex: "#2C3A5B" },
-  { fr: "Bleu paon", cj: "Peacock blue", code: "BLPA", hex: "#15707A" },
-  { fr: "Émeraude", cj: "Emerald", code: "EMER", hex: "#1E6A52" },
-  { fr: "Terracotta", cj: "Orange", code: "TERR", hex: "#C65A2E" },
-  { fr: "Rouge rubis", cj: "Red", code: "RUBI", hex: "#8E1F30" },
+// 12 coloris : nom affiché (FR) -> coloris CJ (suffixe du SKU), VID CJ (id de
+// variante, utilisé par createOrderV2), code SKU interne + pastille (hex).
+const COLORS: {
+  fr: string
+  cj: string
+  vid: string
+  code: string
+  hex: string
+}[] = [
+  { fr: "Blanc nacré", cj: "Noble White", vid: "26DABF97-DB06-4913-BFD7-58D4C6B3D838", code: "BLNC", hex: "#EFEAE0" },
+  { fr: "Champagne", cj: "Champagne gold", vid: "41DCEC1F-98D1-4C52-8F6B-6A1834056599", code: "CHMP", hex: "#E3D1AE" },
+  { fr: "Or rose", cj: "Rose gold", vid: "3C1E75A2-5A8F-4267-88DE-B1EF67E462D5", code: "ORRS", hex: "#E3B7A6" },
+  { fr: "Rose poudré", cj: "Cherry blossom powder", vid: "9B4C5177-3756-4819-8A97-BBB82BDD542C", code: "RSPD", hex: "#EBC7CC" },
+  { fr: "Rose", cj: "Pink", vid: "D769106F-6384-4B6D-AC6E-84E5C0172558", code: "ROSE", hex: "#E48AA6" },
+  { fr: "Gris perle", cj: "Metal grey", vid: "C323E94B-E2E7-4452-B0DA-C4757113692F", code: "GRPL", hex: "#C7C5C1" },
+  { fr: "Gris anthracite", cj: "Space grey", vid: "B9DCC132-64AD-4597-B75E-49270703356A", code: "GRAN", hex: "#65656A" },
+  { fr: "Bleu nuit", cj: "Noble Blue", vid: "B4B9115C-ABC8-4824-BB02-5D2DF30E0030", code: "BLNT", hex: "#2C3A5B" },
+  { fr: "Bleu paon", cj: "Peacock blue", vid: "C84A6096-D785-4545-BFD6-B9E20797A051", code: "BLPA", hex: "#15707A" },
+  { fr: "Émeraude", cj: "Emerald", vid: "E58D7472-94EE-4568-AECF-ECCFB993B2F8", code: "EMER", hex: "#1E6A52" },
+  { fr: "Terracotta", cj: "Orange", vid: "394F73C7-C9A0-45EC-B08E-5D55788CB68F", code: "TERR", hex: "#C65A2E" },
+  { fr: "Rouge rubis", cj: "Red", vid: "FACD0B44-B97E-4E78-AC8C-B0091F4F1952", code: "RUBI", hex: "#8E1F30" },
 ]
 
 const CJ_SPU = "CJJJJFZT00561"
@@ -109,6 +116,7 @@ export default async function add_soie({
       options: { Couleur: c.fr, Format: f.label },
       prices: [{ amount: f.price, currency_code: "chf" }],
       metadata: {
+        cj_vid: c.vid,
         cj_sku: `${CJ_SPU}-${c.cj}`,
         cj_color: c.cj,
         cj_qty: f.qty,
