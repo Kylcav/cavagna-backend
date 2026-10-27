@@ -114,7 +114,10 @@ export default async function add_soie({
       sku: `SOIE-${c.code}-${f.sfx}`,
       manage_inventory: false,
       options: { Couleur: c.fr, Format: f.label },
-      prices: [{ amount: f.price, currency_code: "chf" }],
+      prices: [
+        { amount: f.price, currency_code: "chf" },
+        { amount: f.price, currency_code: "eur" },
+      ],
       metadata: {
         cj_vid: c.vid,
         cj_sku: `${CJ_SPU}-${c.cj}`,
