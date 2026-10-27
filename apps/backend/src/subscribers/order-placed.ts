@@ -10,6 +10,12 @@ const escapeHtml = (value: unknown) =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;")
 
+// Numéro de commande affiché partout (client, admin, CJ) = le display_id.
+// La numérotation démarre haut (voir script set-order-number-start.ts) pour
+// éviter le "#3" qui fait "magasin tout neuf". Un seul numéro => le client te
+// donne SON numéro et tu retrouves la commande direct dans l'admin.
+const orderRef = (displayId: unknown): string => `${displayId ?? ""}`
+
 // URL du storefront (où sont servies les images locales /soie, /aspirateur...).
 const SITE_URL = (
   process.env.STOREFRONT_URL ||
@@ -336,7 +342,7 @@ export default async function orderPlacedHandler({
   const customerResult = await resend.emails.send({
     from: process.env.RESEND_FROM_EMAIL!,
     to: order.email,
-    subject: `Confirmation de votre commande #${order.display_id}`,
+    subject: `Confirmation de votre commande #${orderRef(order.display_id)}`,
     html: `
       <div style="background:#f7f4ef;padding:32px 16px;font-family:Arial,sans-serif;color:#111;line-height:1.6;">
         <div style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:22px;padding:32px;border:1px solid #eadfd2;">
@@ -378,6 +384,15 @@ export default async function orderPlacedHandler({
               Voir ma commande
             </a>
           </p>
+
+          <div style="background:#fafafa;border-radius:14px;padding:16px;border:1px solid #eee;">
+            <div style="font-size:13px;color:#777;">
+              Numéro de commande
+            </div>
+            <div style="font-size:16px;font-weight:700;color:#111;margin-top:4px;">
+              #${orderRef(order.display_id)}
+            </div>
+          </div>
 
           <p style="margin-top:32px;font-size:15px;color:#333;">
             Merci pour votre confiance,<br/>
@@ -441,10 +456,10 @@ export default async function orderPlacedHandler({
     const merchantResult = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL!,
       to: merchantEmail,
-      subject: `🛎️ Nouvelle commande #${order.display_id} — ${totalLabel}`,
+      subject: `🛎️ Nouvelle commande #${orderRef(order.display_id)} — ${totalLabel}`,
       html: `
         <div style="font-family:Arial,sans-serif;color:#111;line-height:1.6;max-width:640px;margin:0 auto;padding:16px;">
-          <h2 style="margin:0 0 12px;">Nouvelle commande #${order.display_id}</h2>
+          <h2 style="margin:0 0 12px;">Nouvelle commande #${orderRef(order.display_id)}</h2>
           <p style="margin:0 0 16px;">
             <strong>Total :</strong> ${totalLabel}<br/>
             <strong>Email client :</strong> ${escapeHtml(order.email)}
