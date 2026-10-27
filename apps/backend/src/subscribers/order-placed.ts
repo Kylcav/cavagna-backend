@@ -58,6 +58,19 @@ const soieEmailImage = (item: any): string | undefined => {
   return code ? `${SITE_URL}/soie/colors/soie-${code}.jpg` : undefined
 }
 
+// Détail des coloris commandés (pour rassurer le client) :
+//   bicolore   -> "1× Rouge rubis + 1× Bleu paon"
+//   même teinte -> "2× Rouge rubis"
+//   1 taie      -> "Rouge rubis"
+const couleursLabel = (item: any): string => {
+  const c1 = item?.metadata?.couleur_1
+  const c2 = item?.metadata?.couleur_2
+  if (c1 && c2 && c2 !== c1) return `1× ${c1} + 1× ${c2}`
+  if (c1 && c2) return `2× ${c1}`
+  if (c1) return `${c1}`
+  return ""
+}
+
 const sha256 = (value?: string | null) => {
   if (!value) return undefined
 
@@ -256,6 +269,8 @@ export default async function orderPlacedHandler({
       "items.title",
       "items.quantity",
       "items.unit_price",
+      "items.total",
+      "items.metadata",
       "items.variant_id",
       "items.thumbnail",
       "items.variant.images.url",
@@ -330,6 +345,13 @@ export default async function orderPlacedHandler({
                     <div style="font-size:15px;font-weight:700;color:#111;">
                       ${title}
                     </div>
+                    ${
+                      couleursLabel(item)
+                        ? `<div style="font-size:13px;color:#8b735d;margin-top:4px;">${escapeHtml(
+                            couleursLabel(item)
+                          )}</div>`
+                        : ""
+                    }
                   </td>
                 </tr>
               </table>
@@ -435,23 +457,28 @@ export default async function orderPlacedHandler({
       order.items
         ?.filter(Boolean)
         .map((item: any) => {
-          const qty = item.quantity ? ` × ${item.quantity}` : ""
-          const c1 = item?.metadata?.couleur_1
-          const c2 = item?.metadata?.couleur_2
-          const couleurs =
-            c1 && c2 && c2 !== c1
-              ? ` (${c1} + ${c2})`
-              : c1
-                ? ` (${c1})`
-                : ""
+          const couleurs = couleursLabel(item)
+          const detail = couleurs
+            ? ` — ${couleurs}`
+            : item.quantity
+              ? ` × ${item.quantity}`
+              : ""
           return `<li><strong>${escapeHtml(item.title)}</strong>${escapeHtml(
-            couleurs
-          )}${qty}</li>`
+            detail
+          )}</li>`
         })
         .join("") || ""
-    const totalLabel = `${Number(order.total || 0)} ${(
-      order.currency_code || ""
-    ).toUpperCase()}`
+    const totalNum =
+      Number(order.total) ||
+      (order.items || []).reduce(
+        (s: number, it: any) =>
+          s +
+          (Number(it.total) ||
+            Number(it.unit_price) * Number(it.quantity) ||
+            0),
+        0
+      )
+    const totalLabel = `${totalNum} ${(order.currency_code || "").toUpperCase()}`
 
     const merchantResult = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL!,
