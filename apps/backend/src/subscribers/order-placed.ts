@@ -207,7 +207,14 @@ export default async function orderPlacedHandler({
       "email",
       "currency_code",
       "total",
+      "shipping_address.first_name",
+      "shipping_address.last_name",
+      "shipping_address.address_1",
+      "shipping_address.address_2",
+      "shipping_address.postal_code",
+      "shipping_address.city",
       "shipping_address.country_code",
+      "shipping_address.phone",
       "shipping_methods.name",
       "items.id",
       "items.title",
@@ -297,12 +304,12 @@ export default async function orderPlacedHandler({
   await resend.emails.send({
     from: process.env.RESEND_FROM_EMAIL!,
     to: order.email,
-    subject: `Confirmation de commande #${order.id}`,
+    subject: `Confirmation de votre commande #${order.display_id}`,
     html: `
       <div style="background:#f7f4ef;padding:32px 16px;font-family:Arial,sans-serif;color:#111;line-height:1.6;">
         <div style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:22px;padding:32px;border:1px solid #eadfd2;">
-          <div style="font-size:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8b735d;margin-bottom:12px;">
-            MizuCat
+          <div style="font-size:14px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#8b735d;margin-bottom:12px;">
+            CAVAGNA
           </div>
 
           <h1 style="font-size:30px;line-height:1.2;margin:0 0 18px;color:#111;">
@@ -310,7 +317,7 @@ export default async function orderPlacedHandler({
           </h1>
 
           <p style="font-size:16px;color:#333;margin:0 0 20px;">
-            Votre commande <strong>#${order.id}</strong> a bien été confirmée.
+            Votre commande <strong>#${order.display_id}</strong> a bien été confirmée.
           </p>
 
           <div style="background:#f7f4ef;border-radius:16px;padding:18px;margin:24px 0;border:1px solid #eadfd2;">
@@ -345,13 +352,13 @@ export default async function orderPlacedHandler({
               Numéro de commande
             </div>
             <div style="font-size:16px;font-weight:700;color:#111;margin-top:4px;">
-              #${order.id}
+              #${order.display_id}
             </div>
           </div>
 
           <p style="margin-top:32px;font-size:15px;color:#333;">
             Merci pour votre confiance,<br/>
-            <strong>L’équipe MizuCat</strong>
+            <strong>L’équipe CAVAGNA</strong>
           </p>
         </div>
       </div>
@@ -359,6 +366,62 @@ export default async function orderPlacedHandler({
   })
 
   console.log(`Email de confirmation envoyé à ${order.email}`)
+
+  // Copie marchand : notification de nouvelle commande vers contact@cavagna.shop.
+  try {
+    const merchantEmail =
+      process.env.MERCHANT_NOTIFICATION_EMAIL || "contact@cavagna.shop"
+    const addr = order.shipping_address
+    const fullName = [addr?.first_name, addr?.last_name]
+      .filter(Boolean)
+      .join(" ")
+    const addressHtml = addr
+      ? `${escapeHtml(fullName)}<br/>${escapeHtml(addr.address_1 || "")}${
+          addr.address_2 ? "<br/>" + escapeHtml(addr.address_2) : ""
+        }<br/>${escapeHtml(addr.postal_code || "")} ${escapeHtml(
+          addr.city || ""
+        )}<br/>${escapeHtml((addr.country_code || "").toUpperCase())}${
+          addr.phone ? "<br/>Tél : " + escapeHtml(addr.phone) : ""
+        }`
+      : "—"
+    const merchantItems =
+      order.items
+        ?.filter(Boolean)
+        .map(
+          (item: any) =>
+            `<li><strong>${escapeHtml(item.title)}</strong> × ${item.quantity}</li>`
+        )
+        .join("") || ""
+    const totalLabel = `${Number(order.total || 0)} ${(
+      order.currency_code || ""
+    ).toUpperCase()}`
+
+    await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL!,
+      to: merchantEmail,
+      subject: `🛎️ Nouvelle commande #${order.display_id} — ${totalLabel}`,
+      html: `
+        <div style="font-family:Arial,sans-serif;color:#111;line-height:1.6;max-width:640px;margin:0 auto;padding:16px;">
+          <h2 style="margin:0 0 12px;">Nouvelle commande #${order.display_id}</h2>
+          <p style="margin:0 0 16px;">
+            <strong>Total :</strong> ${totalLabel}<br/>
+            <strong>Email client :</strong> ${escapeHtml(order.email)}
+          </p>
+          <h3 style="margin:0 0 6px;">Articles</h3>
+          <ul style="margin:0 0 16px;padding-left:18px;">${merchantItems}</ul>
+          <h3 style="margin:0 0 6px;">Adresse de livraison</h3>
+          <p style="margin:0 0 16px;">${addressHtml}</p>
+          <p style="color:#777;font-size:13px;">
+            Si l'article est dropshippé, la commande fournisseur a été créée
+            automatiquement chez CJdropshipping (à valider/payer dans CJ).
+          </p>
+        </div>
+      `,
+    })
+    console.log(`Email marchand envoyé à ${merchantEmail}`)
+  } catch (error) {
+    console.error("Email marchand a échoué, sans bloquer la commande:", error)
+  }
 }
 
 export const config: SubscriberConfig = {
