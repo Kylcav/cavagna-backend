@@ -301,7 +301,7 @@ export default async function orderPlacedHandler({
       })
       .join("") || ""
 
-  await resend.emails.send({
+  const customerResult = await resend.emails.send({
     from: process.env.RESEND_FROM_EMAIL!,
     to: order.email,
     subject: `Confirmation de votre commande #${order.display_id}`,
@@ -365,7 +365,16 @@ export default async function orderPlacedHandler({
     `,
   })
 
-  console.log(`Email de confirmation envoyé à ${order.email}`)
+  if (customerResult.error) {
+    console.error(
+      "❌ Resend (email CLIENT) a refusé l'envoi:",
+      JSON.stringify(customerResult.error)
+    )
+  } else {
+    console.log(
+      `✅ Email de confirmation envoyé à ${order.email} (id ${customerResult.data?.id})`
+    )
+  }
 
   // Copie marchand : notification de nouvelle commande vers contact@cavagna.shop.
   try {
@@ -396,7 +405,7 @@ export default async function orderPlacedHandler({
       order.currency_code || ""
     ).toUpperCase()}`
 
-    await resend.emails.send({
+    const merchantResult = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL!,
       to: merchantEmail,
       subject: `🛎️ Nouvelle commande #${order.display_id} — ${totalLabel}`,
@@ -418,7 +427,16 @@ export default async function orderPlacedHandler({
         </div>
       `,
     })
-    console.log(`Email marchand envoyé à ${merchantEmail}`)
+    if (merchantResult.error) {
+      console.error(
+        "❌ Resend (email MARCHAND) a refusé l'envoi:",
+        JSON.stringify(merchantResult.error)
+      )
+    } else {
+      console.log(
+        `✅ Email marchand envoyé à ${merchantEmail} (id ${merchantResult.data?.id})`
+      )
+    }
   } catch (error) {
     console.error("Email marchand a échoué, sans bloquer la commande:", error)
   }
