@@ -10,6 +10,13 @@ const escapeHtml = (value: unknown) =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;")
 
+// URL du storefront (où sont servies les images locales /soie, /aspirateur...).
+const SITE_URL = (
+  process.env.STOREFRONT_URL ||
+  process.env.STORE_URL ||
+  "https://cavagna.shop"
+).replace(/\/$/, "")
+
 const formatImageUrl = (url?: string) => {
   if (!url) return ""
 
@@ -17,9 +24,32 @@ const formatImageUrl = (url?: string) => {
     return url
   }
 
-  const backendUrl = process.env.BACKEND_URL || "http://localhost:9000"
+  // Images locales (relatives) -> servies par le storefront (URL absolue
+  // obligatoire dans un email).
+  return `${SITE_URL}${url.startsWith("/") ? url : `/${url}`}`
+}
 
-  return `${backendUrl}${url.startsWith("/") ? url : `/${url}`}`
+// Taie en soie : coloris -> code image locale (pour afficher la bonne couleur
+// dans l'email client).
+const SOIE_COLOR_CODE: Record<string, string> = {
+  "Blanc nacré": "BLNC",
+  Champagne: "CHMP",
+  "Or rose": "ORRS",
+  "Rose poudré": "RSPD",
+  Rose: "ROSE",
+  "Gris perle": "GRPL",
+  "Gris anthracite": "GRAN",
+  "Bleu nuit": "BLNT",
+  "Bleu paon": "BLPA",
+  Émeraude: "EMER",
+  Terracotta: "TERR",
+  "Rouge rubis": "RUBI",
+}
+
+const soieEmailImage = (item: any): string | undefined => {
+  const c = item?.metadata?.couleur_1
+  const code = typeof c === "string" ? SOIE_COLOR_CODE[c] : undefined
+  return code ? `${SITE_URL}/soie/colors/soie-${code}.jpg` : undefined
 }
 
 const sha256 = (value?: string | null) => {
@@ -269,11 +299,13 @@ export default async function orderPlacedHandler({
     order.items
       ?.filter(Boolean)
       .map((item: any) => {
-        const imageUrl = formatImageUrl(
-          item?.variant?.images?.[0]?.url ||
-            item?.product?.images?.[0]?.url ||
-            item?.thumbnail
-        )
+        const imageUrl =
+          soieEmailImage(item) ||
+          formatImageUrl(
+            item?.variant?.images?.[0]?.url ||
+              item?.product?.images?.[0]?.url ||
+              item?.thumbnail
+          )
         const title = escapeHtml(item?.title || "Produit")
 
         return `
@@ -317,7 +349,7 @@ export default async function orderPlacedHandler({
           </h1>
 
           <p style="font-size:16px;color:#333;margin:0 0 20px;">
-            Votre commande <strong>#${order.display_id}</strong> a bien été confirmée.
+            Votre commande a bien été confirmée.
           </p>
 
           <div style="background:#f7f4ef;border-radius:16px;padding:18px;margin:24px 0;border:1px solid #eadfd2;">
@@ -346,15 +378,6 @@ export default async function orderPlacedHandler({
               Voir ma commande
             </a>
           </p>
-
-          <div style="background:#fafafa;border-radius:14px;padding:16px;border:1px solid #eee;">
-            <div style="font-size:13px;color:#777;">
-              Numéro de commande
-            </div>
-            <div style="font-size:16px;font-weight:700;color:#111;margin-top:4px;">
-              #${order.display_id}
-            </div>
-          </div>
 
           <p style="margin-top:32px;font-size:15px;color:#333;">
             Merci pour votre confiance,<br/>
@@ -396,10 +419,20 @@ export default async function orderPlacedHandler({
     const merchantItems =
       order.items
         ?.filter(Boolean)
-        .map(
-          (item: any) =>
-            `<li><strong>${escapeHtml(item.title)}</strong> × ${item.quantity}</li>`
-        )
+        .map((item: any) => {
+          const qty = item.quantity ? ` × ${item.quantity}` : ""
+          const c1 = item?.metadata?.couleur_1
+          const c2 = item?.metadata?.couleur_2
+          const couleurs =
+            c1 && c2 && c2 !== c1
+              ? ` (${c1} + ${c2})`
+              : c1
+                ? ` (${c1})`
+                : ""
+          return `<li><strong>${escapeHtml(item.title)}</strong>${escapeHtml(
+            couleurs
+          )}${qty}</li>`
+        })
         .join("") || ""
     const totalLabel = `${Number(order.total || 0)} ${(
       order.currency_code || ""
