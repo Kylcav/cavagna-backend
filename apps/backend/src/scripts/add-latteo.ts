@@ -3,7 +3,10 @@ import {
   ContainerRegistrationKeys,
   ProductStatus,
 } from "@medusajs/framework/utils"
-import { createProductsWorkflow } from "@medusajs/medusa/core-flows"
+import {
+  createProductsWorkflow,
+  deleteProductsWorkflow,
+} from "@medusajs/medusa/core-flows"
 
 /**
  * Crée le produit "Machine à lait végétal Lattéo" pour le site /latteo.
@@ -21,11 +24,13 @@ import { createProductsWorkflow } from "@medusajs/medusa/core-flows"
  */
 
 const HANDLE = "latteo-machine-lait-vegetal"
-const PRICE = 149
+const PRICE = 169
 
-const CJ_PID = "2602190943141606000"
-const CJ_VID_EU = "2602190943141606600"
-const CJ_SKU = "CJJT276399802BY" // SKU de la variante prise-EU (Beige set-EU)
+// Machine inox "soup maker" (façon Mylky), source CJ "Fully Automatic Soybean
+// Milk Machine ... Stainless Steel" (SPU CJYD2399268).
+const CJ_PID = "2506110931331621400"
+const CJ_VID_EU = "2506110931331622600"
+const CJ_SKU = "CJYD239926803CX" // SKU de la variante prise-EU (Silver Gray-EU)
 
 export default async function add_latteo({
   container,
@@ -42,9 +47,12 @@ export default async function add_latteo({
   })
   if (existing.length) {
     logger.info(
-      `Produit déjà existant (${existing[0].id}, statut ${existing[0].status}). Rien à faire.`
+      `Produit déjà existant (${existing[0].id}) — suppression puis recréation ` +
+        `(swap vers la machine inox + prix ${PRICE}).`
     )
-    return
+    await deleteProductsWorkflow(container).run({
+      input: { ids: existing.map((p: any) => p.id) },
+    })
   }
 
   const { data: stores } = await query.graph({
@@ -85,18 +93,16 @@ export default async function add_latteo({
           status: ProductStatus.PUBLISHED,
           shipping_profile_id: shippingProfile.id,
           description:
-            "La machine Lattéo prépare du lait végétal frais en 60 secondes, à partir " +
+            "La machine Lattéo en inox prépare du lait végétal frais à partir " +
             "d'ingrédients bruts : amandes, avoine, noisettes, soja, graines… Chauffe et " +
-            "mixe automatiquement, panier-filtre intégré, sans additifs ni conservateurs. " +
-            "Capacité ~1,2 L, nettoyage facile, prise européenne. Plus goûtu, moins cher et " +
-            "moins de déchets que les briques du commerce.",
-          thumbnail: "/latteo/cj-1.jpg",
+            "mixe automatiquement (lame SUS 304, double paroi inox), sans additifs ni " +
+            "conservateurs. Capacité 1,2–1,5 L, auto-nettoyage, prise européenne. Plus goûtu, " +
+            "moins cher et moins de déchets que les briques du commerce.",
+          thumbnail: "/latteo/latteo-main.jpg",
           images: [
-            { url: "/latteo/cj-1.jpg" },
-            { url: "/latteo/cj-2.jpg" },
-            { url: "/latteo/cj-3.jpg" },
-            { url: "/latteo/cj-4.jpg" },
-            { url: "/latteo/cj-5.jpg" },
+            { url: "/latteo/latteo-main.jpg" },
+            { url: "/latteo/ingredients.jpg" },
+            { url: "/latteo/recette-amande.jpg" },
           ],
           options: [{ title: "Format", values: ["Machine Lattéo"] }],
           variants: [
