@@ -84,7 +84,7 @@ export default async function setup_gift_store({
     .map((c: any) => c.id)
   if (oldCatIds.length) {
     await deleteProductCategoriesWorkflow(container).run({
-      input: { ids: oldCatIds },
+      input: oldCatIds,
     })
     logger.info(`🧹 ${oldCatIds.length} anciennes catégories supprimées.`)
   }
