@@ -177,6 +177,28 @@ const BALLE: ColorProduct = {
   ],
 }
 
+const ASPI = "/produits/aspirateur"
+const ASPIRATEUR: ColorProduct = {
+  handle: "aspirateur-robot-18000-pa",
+  title: "Robot balai & laveur 3-en-1",
+  price: 199,
+  category: "tech-maison",
+  description:
+    "Un robot malin qui balaie, aspire et passe la serpillière en un seul passage. " +
+    "Ses deux brosses latérales attrapent la poussière le long des murs et sous les meubles, " +
+    "sa lingette microfibre lave les sols au passage. Ultra-fin, silencieux, rechargeable " +
+    "par USB, il s'active d'un bouton. Idéal pour l'entretien quotidien des parquets et " +
+    "carrelages. Livré avec brosses de rechange, support serpillière, lingette, brosse de " +
+    "nettoyage et câble. Disponible en blanc, noir et bleu.",
+  cj_pid: "2501020304151612400",
+  thumbnail: `${ASPI}/blanc.webp`,
+  colors: [
+    { value: "Blanc", vid: "2501020304151612800", sku: "", images: [`${ASPI}/blanc.webp`] },
+    { value: "Noir", vid: "2501020304151612900", sku: "", images: [`${ASPI}/noir.webp`] },
+    { value: "Bleu", vid: "2501020304151612600", sku: "", images: [`${ASPI}/bleu.webp`] },
+  ],
+}
+
 const POELE: ColorProduct = {
   handle: "poele-pierre-antiadhesive",
   title: "Poêle anti-adhésive pierre",
@@ -268,7 +290,7 @@ export default async function setColorVariants({
   })
   const shippingProfile = profiles[0]
 
-  for (const p of [PORTE_CARTES, EMS, HALO, LIP, JAWLINE, BALLE, PROJECTEUR, FEUTRES, POELE]) {
+  for (const p of [PORTE_CARTES, EMS, HALO, LIP, JAWLINE, BALLE, PROJECTEUR, FEUTRES, POELE, ASPIRATEUR]) {
     // Supprime l'ancien produit mono-variante.
     const { data: existing } = await query.graph({
       entity: "product",
