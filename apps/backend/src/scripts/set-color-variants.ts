@@ -52,10 +52,10 @@ const PORTE_CARTES: ColorProduct = {
   cj_pid: "2604010340051610800",
   thumbnail: "/produits/porte-cartes-popup/noir.webp",
   colors: [
-    { value: "Noir", vid: "2604010340051612100", sku: "CJQB281440404DW", images: ["/produits/porte-cartes-popup/noir.webp"] },
-    { value: "Rouge", vid: "2604010340051611100", sku: "CJQB281440401AZ", images: ["/produits/porte-cartes-popup/rouge.webp"] },
-    { value: "Bleu", vid: "2604010340051611800", sku: "CJQB281440403CX", images: ["/produits/porte-cartes-popup/bleu.webp"] },
-    { value: "Orange", vid: "2604010340051611500", sku: "CJQB281440402BY", images: ["/produits/porte-cartes-popup/orange.webp"] },
+    { value: "Noir", vid: "2604010340051612100", sku: "CJQB281440404DW", images: ["/produits/porte-cartes-popup/noir.webp", "/produits/porte-cartes-popup/noir-interieur.webp"] },
+    { value: "Rouge", vid: "2604010340051611100", sku: "CJQB281440401AZ", images: ["/produits/porte-cartes-popup/rouge.webp", "/produits/porte-cartes-popup/rouge-interieur.webp"] },
+    { value: "Bleu", vid: "2604010340051611800", sku: "CJQB281440403CX", images: ["/produits/porte-cartes-popup/bleu.webp", "/produits/porte-cartes-popup/bleu-interieur.webp"] },
+    { value: "Orange", vid: "2604010340051611500", sku: "CJQB281440402BY", images: ["/produits/porte-cartes-popup/orange.webp", "/produits/porte-cartes-popup/orange-interieur.webp"] },
   ],
 }
 
