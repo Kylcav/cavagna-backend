@@ -189,8 +189,6 @@ const POELE: ColorProduct = {
     "ergonomique. Disponible en 20, 24 et 26 cm.",
   cj_pid: "1439060463794130944",
   thumbnail: "/produits/poele-pierre/vert-1.webp",
-  // Même photo, zoom croissant -> la poêle paraît grandir avec la taille.
-  imageZoom: { "20 cm": 1, "24 cm": 1.15, "26 cm": 1.3 },
   colors: [
     { value: "20 cm", vid: "1439060463840268288", sku: "CJCJ129117901AZ", images: ["/produits/poele-pierre/vert-1.webp"] },
     { value: "24 cm", vid: "1439060463857045504", sku: "CJCJ129117902BY", images: ["/produits/poele-pierre/vert-1.webp"] },
