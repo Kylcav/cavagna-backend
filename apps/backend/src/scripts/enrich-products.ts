@@ -92,11 +92,41 @@ export default async function enrichProducts({
     // Poids (g) : variante sinon produit.
     const weightG = num(cjv.variantWeight) || num(data.productWeight)
 
-    // Matière.
+    // Matière : parse (CJ renvoie parfois un tableau JSON en string),
+    // traduit en français, retire "Others".
+    const MAT_FR: Record<string, string> = {
+      metal: "Métal",
+      plastic: "Plastique",
+      leather: "Cuir",
+      cloth: "Tissu",
+      cotton: "Coton",
+      silicone: "Silicone",
+      "stainless steel": "Acier inoxydable",
+      alloy: "Alliage",
+      aluminum: "Aluminium",
+      rubber: "Caoutchouc",
+      glass: "Verre",
+      ceramic: "Céramique",
+      wood: "Bois",
+      silica: "Silicone",
+      "silica gel": "Silicone",
+    }
+    let matArr = data.materialNameEn
+    if (typeof matArr === "string") {
+      try {
+        matArr = JSON.parse(matArr)
+      } catch {
+        matArr = [matArr]
+      }
+    }
     let material: string | null = null
-    const matArr = data.materialNameEn
-    if (Array.isArray(matArr) && matArr.length) material = matArr.join(", ")
-    else if (typeof matArr === "string" && matArr.trim()) material = matArr
+    if (Array.isArray(matArr)) {
+      const fr = matArr
+        .map((m: any) => String(m || "").trim())
+        .filter((m) => m && m.toLowerCase() !== "others")
+        .map((m) => MAT_FR[m.toLowerCase()] || m)
+      if (fr.length) material = Array.from(new Set(fr)).join(" · ")
+    }
 
     // Liste de caractéristiques affichée sur le site (que du non-vide).
     const specs: { label: string; value: string }[] = []
@@ -109,22 +139,8 @@ export default async function enrichProducts({
       })
     if (material) specs.push({ label: "Matière", value: material })
 
-    // Options disponibles (couleurs / tailles) listées chez CJ.
-    const optAxis = (data.productKeyEn || "").toLowerCase()
-    const optLabel = optAxis.includes("size")
-      ? "Tailles disponibles"
-      : optAxis.includes("color")
-        ? "Coloris disponibles"
-        : "Variantes"
-    const opts = Array.from(
-      new Set(
-        cjVariants
-          .map((v) => (v.variantKey || v.variantNameEn || "").toString().trim())
-          .filter(Boolean)
-      )
-    )
-    if (opts.length > 1 && opts.length <= 15)
-      specs.push({ label: optLabel, value: opts.join(", ") })
+    // NB : on ne liste PAS les variantes CJ (on vend une seule variante par
+    // produit) — ce serait trompeur pour le client.
 
     // Mise à jour du produit : champs natifs + metadata.specs.
     const update: any = {
