@@ -309,9 +309,9 @@ export default async function orderPlacedHandler({
     process.env.STORE_COUNTRY_CODE ||
     "ch"
 
-  // Lien "suivre ma commande" : page publique de suivi (numéro + e-mail),
-  // accessible sans compte. SITE_URL (jamais localhost).
-  const orderUrl = `${SITE_URL}/${countryCode}/suivi-commande`
+  // Lien "suivre ma commande" : espace compte. L'invité crée un compte (ou se
+  // connecte), puis suit sa commande via l'onglet Commandes. SITE_URL (jamais localhost).
+  const orderUrl = `${SITE_URL}/${countryCode}/account/orders`
 
   const deliveryEstimate = escapeHtml(
     order.shipping_methods?.[0]?.name || "Livraison standard"
@@ -420,8 +420,9 @@ export default async function orderPlacedHandler({
           </table>
 
           <p style="font-size:15px;color:#333;margin-top:28px;">
-            Suivez l’état de votre commande à tout moment avec votre numéro de
-            commande et votre e-mail — aucun compte nécessaire.
+            Pour suivre votre commande, créez votre compte (ou connectez-vous),
+            puis rendez-vous dans l’onglet <strong>Commandes</strong> et entrez
+            votre numéro de commande.
           </p>
 
           <div style="background:#fff8ec;border:1px solid #f0e2c4;border-radius:14px;padding:14px 16px;margin-top:20px;">
@@ -435,7 +436,7 @@ export default async function orderPlacedHandler({
 
           <p style="margin:20px 0 24px;">
             <a href="${orderUrl}" style="background:#111;color:#fff;padding:14px 22px;text-decoration:none;border-radius:12px;display:inline-block;font-weight:700;">
-              Voir ma commande
+              Créer mon compte &amp; suivre ma commande
             </a>
           </p>
 
