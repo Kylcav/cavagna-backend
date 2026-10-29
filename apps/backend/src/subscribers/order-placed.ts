@@ -309,9 +309,9 @@ export default async function orderPlacedHandler({
     process.env.STORE_COUNTRY_CODE ||
     "ch"
 
-  // Lien "suivre ma commande" : on utilise toujours SITE_URL (jamais localhost)
-  // et on pointe vers l'espace compte du storefront en prod.
-  const orderUrl = `${SITE_URL}/${countryCode}/account`
+  // Lien "suivre ma commande" : page publique de suivi (numéro + e-mail),
+  // accessible sans compte. SITE_URL (jamais localhost).
+  const orderUrl = `${SITE_URL}/${countryCode}/suivi-commande`
 
   const deliveryEstimate = escapeHtml(
     order.shipping_methods?.[0]?.name || "Livraison standard"
@@ -420,7 +420,8 @@ export default async function orderPlacedHandler({
           </table>
 
           <p style="font-size:15px;color:#333;margin-top:28px;">
-            Vous pouvez suivre votre commande depuis votre espace compte.
+            Suivez l’état de votre commande à tout moment avec votre numéro de
+            commande et votre e-mail — aucun compte nécessaire.
           </p>
 
           <div style="background:#fff8ec;border:1px solid #f0e2c4;border-radius:14px;padding:14px 16px;margin-top:20px;">
