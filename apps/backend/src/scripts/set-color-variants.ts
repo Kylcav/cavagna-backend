@@ -6,7 +6,6 @@ import {
 import {
   createProductsWorkflow,
   deleteProductsWorkflow,
-  updateProductsWorkflow,
 } from "@medusajs/medusa/core-flows"
 
 /**
@@ -37,6 +36,8 @@ type ColorProduct = {
   colors: ColorVariant[]
   /** Titre de l'option (défaut "Couleur"). Ex. "Modèle" pour le jawline. */
   optionTitle?: string
+  /** Zoom CSS appliqué à l'image selon l'option (ex. poêle qui "grandit"). */
+  imageZoom?: Record<string, number>
 }
 
 const PORTE_CARTES: ColorProduct = {
@@ -176,6 +177,27 @@ const BALLE: ColorProduct = {
   ],
 }
 
+const POELE: ColorProduct = {
+  handle: "poele-pierre-antiadhesive",
+  title: "Poêle anti-adhésive pierre",
+  price: 59,
+  category: "maison-cuisine",
+  optionTitle: "Taille",
+  description:
+    "Cuisine sans accroche et avec peu de matière grasse grâce au revêtement pierre " +
+    "anti-adhésif. Répartition homogène de la chaleur, compatible tous feux, poignée " +
+    "ergonomique. Disponible en 20, 24 et 26 cm.",
+  cj_pid: "1439060463794130944",
+  thumbnail: "/produits/poele-pierre/vert-1.webp",
+  // Même photo, zoom croissant -> la poêle paraît grandir avec la taille.
+  imageZoom: { "20 cm": 1, "24 cm": 1.15, "26 cm": 1.3 },
+  colors: [
+    { value: "20 cm", vid: "1439060463840268288", sku: "CJCJ129117901AZ", images: ["/produits/poele-pierre/vert-1.webp"] },
+    { value: "24 cm", vid: "1439060463857045504", sku: "CJCJ129117902BY", images: ["/produits/poele-pierre/vert-1.webp"] },
+    { value: "26 cm", vid: "1439060463873822720", sku: "CJCJ129117903CX", images: ["/produits/poele-pierre/vert-1.webp"] },
+  ],
+}
+
 const PROJECTEUR: ColorProduct = {
   handle: "projecteur-mini-hd",
   title: "Mini projecteur portable HD",
@@ -250,7 +272,7 @@ export default async function setColorVariants({
   })
   const shippingProfile = profiles[0]
 
-  for (const p of [PORTE_CARTES, EMS, HALO, LIP, JAWLINE, BALLE, PROJECTEUR, FEUTRES]) {
+  for (const p of [PORTE_CARTES, EMS, HALO, LIP, JAWLINE, BALLE, PROJECTEUR, FEUTRES, POELE]) {
     // Supprime l'ancien produit mono-variante.
     const { data: existing } = await query.graph({
       entity: "product",
@@ -301,37 +323,16 @@ export default async function setColorVariants({
               metadata: { cj_vid: c.vid, cj_sku: c.sku, cj_qty: 1 },
             })),
             sales_channels: [{ id: salesChannel.id }],
-            metadata: { cj_pid: p.cj_pid, colorImages },
+            metadata: {
+              cj_pid: p.cj_pid,
+              colorImages,
+              ...(p.imageZoom ? { imageZoom: p.imageZoom } : {}),
+            },
           },
         ],
       },
     })
     logger.info(`✅ ${p.title} recréé avec ${p.colors.length} couleurs + photos.`)
-  }
-
-  // Poêle : remplace les photos CJ par les vraies (verte).
-  const { data: poele } = await query.graph({
-    entity: "product",
-    fields: ["id", "metadata"],
-    filters: { handle: "poele-pierre-antiadhesive" },
-  })
-  if (poele.length) {
-    const imgs = [
-      "/produits/poele-pierre/vert-1.webp",
-      "/produits/poele-pierre/vert-2.webp",
-    ]
-    await updateProductsWorkflow(container).run({
-      input: {
-        products: [
-          {
-            id: poele[0].id,
-            thumbnail: imgs[0],
-            images: imgs.map((url) => ({ url })),
-          },
-        ],
-      },
-    })
-    logger.info("✅ Poêle : photos vertes mises à jour.")
   }
 
   logger.info("🎨 Variantes couleur + photos terminées.")
