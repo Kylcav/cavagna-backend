@@ -105,8 +105,7 @@ const sendMetaPurchaseEvent = async (order: any) => {
     return
   }
 
-  const storeUrl = process.env.STORE_URL || "https://mizucat.ch"
-  const cleanStoreUrl = storeUrl.replace(/\/$/, "")
+  const cleanStoreUrl = SITE_URL
   const countryCode =
     order.shipping_address?.country_code?.toLowerCase() ||
     process.env.STORE_COUNTRY_CODE ||
@@ -176,8 +175,7 @@ const sendTikTokPurchaseEvent = async (order: any) => {
     return
   }
 
-  const storeUrl = process.env.STORE_URL || "https://mizucat.ch"
-  const cleanStoreUrl = storeUrl.replace(/\/$/, "")
+  const cleanStoreUrl = SITE_URL
   const countryCode =
     order.shipping_address?.country_code?.toLowerCase() ||
     process.env.STORE_COUNTRY_CODE ||
@@ -306,14 +304,14 @@ export default async function orderPlacedHandler({
     )
   }
 
-  const storeUrl = process.env.STORE_URL || "http://localhost:8000"
-  const cleanStoreUrl = storeUrl.replace(/\/$/, "")
   const countryCode =
     order.shipping_address?.country_code?.toLowerCase() ||
     process.env.STORE_COUNTRY_CODE ||
     "ch"
 
-  const orderUrl = `${cleanStoreUrl}/${countryCode}/account`
+  // Lien "suivre ma commande" : on utilise toujours SITE_URL (jamais localhost)
+  // et on pointe vers l'espace compte du storefront en prod.
+  const orderUrl = `${SITE_URL}/${countryCode}/account`
 
   const deliveryEstimate = escapeHtml(
     order.shipping_methods?.[0]?.name || "Livraison standard"
