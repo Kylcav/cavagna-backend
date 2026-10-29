@@ -26,13 +26,18 @@ const SITE_URL = (
 const formatImageUrl = (url?: string) => {
   if (!url) return ""
 
-  if (url.startsWith("http")) {
-    return url
+  // Images locales (relatives) -> URL absolue du storefront (obligatoire en mail).
+  let u = url.startsWith("http")
+    ? url
+    : `${SITE_URL}${url.startsWith("/") ? url : `/${url}`}`
+
+  // Les clients mail (Gmail, Outlook, Apple Mail...) ne gèrent pas le WebP.
+  // Pour nos images locales, on sert la version .jpg jumelle (générée à côté).
+  if (u.startsWith(SITE_URL)) {
+    u = u.replace(/\.webp(\?.*)?$/i, ".jpg")
   }
 
-  // Images locales (relatives) -> servies par le storefront (URL absolue
-  // obligatoire dans un email).
-  return `${SITE_URL}${url.startsWith("/") ? url : `/${url}`}`
+  return u
 }
 
 // Taie en soie : coloris -> code image locale (pour afficher la bonne couleur
