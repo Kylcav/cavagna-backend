@@ -416,6 +416,15 @@ export default async function orderPlacedHandler({
             Vous pouvez suivre votre commande depuis votre espace compte.
           </p>
 
+          <div style="background:#fff8ec;border:1px solid #f0e2c4;border-radius:14px;padding:14px 16px;margin-top:20px;">
+            <p style="margin:0;font-size:14px;color:#6b5a33;line-height:1.5;">
+              ⏱️ <strong>Délai de livraison :</strong> en raison d’un nombre de
+              commandes important, le délai annoncé peut varier de
+              <strong>± 3 jours</strong>. Merci de votre patience et de votre
+              compréhension.
+            </p>
+          </div>
+
           <p style="margin:20px 0 24px;">
             <a href="${orderUrl}" style="background:#111;color:#fff;padding:14px 22px;text-decoration:none;border-radius:12px;display:inline-block;font-weight:700;">
               Voir ma commande
