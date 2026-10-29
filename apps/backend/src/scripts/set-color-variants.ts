@@ -158,6 +158,24 @@ const JAWLINE: ColorProduct = {
   ],
 }
 
+const BALLE: ColorProduct = {
+  handle: "balle-anti-destruction-chien",
+  title: "Balle anti-destruction pour chien",
+  price: 59,
+  category: "fun-enfants",
+  description:
+    "Conçue pour les mâchoires les plus puissantes. Caoutchouc ultra-résistant " +
+    "qui résiste aux mordeurs acharnés, couineur intégré, nettoie les dents et " +
+    "calme l'anxiété. Le jouet qui survit (enfin) à ton chien. Diamètre 55 mm.",
+  cj_pid: "1814540500956237824",
+  thumbnail: "/produits/balle-chien/bleu.webp",
+  colors: [
+    { value: "Bleu", vid: "1814540500981403650", sku: "CJGY208859103CX", images: ["/produits/balle-chien/bleu.webp"] },
+    { value: "Vert", vid: "1814540500981403652", sku: "CJGY208859105EV", images: ["/produits/balle-chien/vert.webp"] },
+    { value: "Rouge", vid: "1814540500981403648", sku: "CJGY208859101AZ", images: ["/produits/balle-chien/rouge.webp"] },
+  ],
+}
+
 export default async function setColorVariants({
   container,
 }: {
@@ -191,7 +209,7 @@ export default async function setColorVariants({
   })
   const shippingProfile = profiles[0]
 
-  for (const p of [PORTE_CARTES, EMS, HALO, LIP, JAWLINE]) {
+  for (const p of [PORTE_CARTES, EMS, HALO, LIP, JAWLINE, BALLE]) {
     // Supprime l'ancien produit mono-variante.
     const { data: existing } = await query.graph({
       entity: "product",
