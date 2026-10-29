@@ -26,7 +26,9 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
 
   const { data: orders } = await query.graph({
     entity: "order",
-    filters: { display_id: displayId },
+    // display_id est un entier en base ; le typage du filtre attend une string,
+    // donc on caste (le nombre fonctionne au runtime pour la comparaison SQL).
+    filters: { display_id: displayId } as any,
     fields: [
       "id",
       "display_id",
