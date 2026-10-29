@@ -68,9 +68,32 @@ const EMS: ColorProduct = {
   cj_pid: "1562401247699939328",
   thumbnail: "/produits/ceinture-ems/bleu.webp",
   colors: [
-    { value: "Bleu", vid: "1562401247788019712", sku: "CJJT154897101AZ", images: ["/produits/ceinture-ems/bleu.webp", "/produits/ceinture-ems/bleu-2.webp"] },
+    { value: "Bleu", vid: "1562401247788019712", sku: "CJJT154897101AZ", images: ["/produits/ceinture-ems/bleu.webp"] },
     { value: "Orange", vid: "1562401247788019713", sku: "CJJT154897102BY", images: ["/produits/ceinture-ems/orange.webp"] },
     { value: "Rouge", vid: "2610250833511617600", sku: "CJJT154897103CX", images: ["/produits/ceinture-ems/rouge.webp"] },
+  ],
+}
+
+const HALO: ColorProduct = {
+  handle: "extension-cheveux-halo",
+  title: "Extension de cheveux — queue-de-cheval ondulée",
+  price: 60,
+  category: "mode-beaute",
+  description:
+    "Une queue-de-cheval longue, ondulée et volumineuse en 30 secondes. " +
+    "L'extension s'enroule autour de ta vraie attache et se fixe en un clin d'œil : " +
+    "confortable, réutilisable, indétectable. Fibre haute qualité au toucher naturel, " +
+    "résistante à la chaleur. Disponible en 7 teintes pour s'accorder à ta couleur.",
+  cj_pid: "2608280831061610400",
+  thumbnail: "/produits/extension-halo/chatain.webp",
+  colors: [
+    { value: "Noir", vid: "2608280831061611400", sku: "CJYD310532501AZ", images: ["/produits/extension-halo/noir.webp"] },
+    { value: "Brun foncé", vid: "2608280831061611401", sku: "CJYD310532502BY", images: ["/produits/extension-halo/brun-fonce.webp"] },
+    { value: "Chocolat", vid: "2608280831061611402", sku: "CJYD310532503CX", images: ["/produits/extension-halo/chocolat.webp"] },
+    { value: "Châtain", vid: "2608280831061611403", sku: "CJYD310532504DW", images: ["/produits/extension-halo/chatain.webp"] },
+    { value: "Caramel", vid: "2608280831061611404", sku: "CJYD310532505EV", images: ["/produits/extension-halo/caramel.webp"] },
+    { value: "Blond clair", vid: "2608280831061611405", sku: "CJYD310532506FU", images: ["/produits/extension-halo/blond-clair.webp"] },
+    { value: "Blond cendré", vid: "2608280831061611406", sku: "CJYD310532507GT", images: ["/produits/extension-halo/blond-cendre.webp"] },
   ],
 }
 
@@ -107,7 +130,7 @@ export default async function setColorVariants({
   })
   const shippingProfile = profiles[0]
 
-  for (const p of [PORTE_CARTES, EMS]) {
+  for (const p of [PORTE_CARTES, EMS, HALO]) {
     // Supprime l'ancien produit mono-variante.
     const { data: existing } = await query.graph({
       entity: "product",
