@@ -1,18 +1,20 @@
 import { MedusaContainer } from "@medusajs/framework"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { updateShippingOptionsWorkflow } from "@medusajs/medusa/core-flows"
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 
 /**
- * Corrige le checkout : repointe toutes les options de livraison vers le profil
- * d'expédition "Default" (celui qu'utilisent les 11 produits). Avant ce fix,
- * l'option "Livraison gratuite" pointait vers un profil orphelin (Aspirateur)
- * -> la finalisation du panier échouait (400) alors que Stripe débitait.
+ * Corrige le checkout : repointe les options de livraison dont le profil
+ * d'expédition ne correspond à aucun produit (profil orphelin) vers le profil
+ * "Default" (celui des 11 produits). Sans ça, choisir "Livraison gratuite"
+ * faisait échouer la finalisation du panier (400) alors que Stripe débitait.
+ *
+ * Non destructif : on met simplement à jour le profil des options.
  *
  * Lancer : npx medusa exec ./src/scripts/fix-shipping-profile.ts
  */
 export default async function fix({ container }: { container: MedusaContainer }) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
   const q = container.resolve(ContainerRegistrationKeys.QUERY)
+  const fulfillment = container.resolve(Modules.FULFILLMENT)
 
   const { data: profs } = await q.graph({
     entity: "shipping_profile",
@@ -21,25 +23,32 @@ export default async function fix({ container }: { container: MedusaContainer })
   const def = profs.find((p: any) => /default/i.test(p.name))
   if (!def) throw new Error("Profil Default introuvable")
 
+  const { data: prods } = await q.graph({
+    entity: "product",
+    fields: ["shipping_profile.id"],
+  })
+  const usedProfiles = new Set(
+    prods.map((p: any) => p.shipping_profile?.id).filter(Boolean)
+  )
+
   const { data: opts } = await q.graph({
     entity: "shipping_option",
     fields: ["id", "name", "shipping_profile_id"],
   })
-  const toFix = opts.filter((o: any) => o.shipping_profile_id !== def.id)
-  if (!toFix.length) {
-    logger.info("Rien à corriger : toutes les options sont déjà sur Default.")
+  const orphan = opts.filter(
+    (o: any) => !usedProfiles.has(o.shipping_profile_id)
+  )
+  if (!orphan.length) {
+    logger.info("Rien à corriger : toutes les options couvrent un profil utilisé.")
     return
   }
 
-  await updateShippingOptionsWorkflow(container).run({
-    input: toFix.map((o: any) => ({
-      id: o.id,
+  for (const o of orphan) {
+    // Signature (id, data) -> met à jour une option à la fois.
+    await fulfillment.updateShippingOptions(o.id, {
       shipping_profile_id: def.id,
-    })),
-  })
-  logger.info(
-    `✅ ${toFix.length} option(s) de livraison repointée(s) vers Default : ${toFix
-      .map((o: any) => o.name)
-      .join(", ")}`
-  )
+    } as any)
+    logger.info(`✅ "${o.name}" repointée vers le profil Default.`)
+  }
+  logger.info(`Terminé : ${orphan.length} option(s) corrigée(s).`)
 }
