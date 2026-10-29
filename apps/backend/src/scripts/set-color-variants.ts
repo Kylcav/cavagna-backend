@@ -97,6 +97,29 @@ const HALO: ColorProduct = {
   ],
 }
 
+const LIP: ColorProduct = {
+  handle: "lip-plumper-gloss",
+  title: "Lip Plumper — gloss repulpant",
+  price: 25,
+  category: "mode-beaute",
+  description:
+    "Des lèvres visiblement plus pulpeuses dès la première application. Ce gloss " +
+    "repulpant hydrate et donne du volume avec un fini brillant non collant. " +
+    "Effet avant/après bluffant, disponible en 8 teintes du nude pailleté au rouge intense.",
+  cj_pid: "2408120516091605700",
+  thumbnail: "/produits/lip-plumper/rose-vif.webp",
+  colors: [
+    { value: "Prune", vid: "2408120516091606200", sku: "CJKH210822001AZ", images: ["/produits/lip-plumper/prune.webp"] },
+    { value: "Bordeaux", vid: "2408120516091607100", sku: "CJKH210822002BY", images: ["/produits/lip-plumper/bordeaux.webp"] },
+    { value: "Rose pailleté", vid: "2408120516091607300", sku: "CJKH210822003CX", images: ["/produits/lip-plumper/rose-paillete.webp"] },
+    { value: "Rose vif", vid: "2408120516091607500", sku: "CJKH210822004DW", images: ["/produits/lip-plumper/rose-vif.webp"] },
+    { value: "Rouge", vid: "2408120516091607800", sku: "CJKH210822005EV", images: ["/produits/lip-plumper/rouge.webp"] },
+    { value: "Pêche pailleté", vid: "2408120516091608100", sku: "CJKH210822006FU", images: ["/produits/lip-plumper/peche-paillete.webp"] },
+    { value: "Vieux rose", vid: "2408120516091608400", sku: "CJKH210822007GT", images: ["/produits/lip-plumper/vieux-rose.webp"] },
+    { value: "Rouge brique", vid: "2408120516091608700", sku: "CJKH210822008HS", images: ["/produits/lip-plumper/rouge-brique.webp"] },
+  ],
+}
+
 export default async function setColorVariants({
   container,
 }: {
@@ -130,7 +153,7 @@ export default async function setColorVariants({
   })
   const shippingProfile = profiles[0]
 
-  for (const p of [PORTE_CARTES, EMS, HALO]) {
+  for (const p of [PORTE_CARTES, EMS, HALO, LIP]) {
     // Supprime l'ancien produit mono-variante.
     const { data: existing } = await query.graph({
       entity: "product",
