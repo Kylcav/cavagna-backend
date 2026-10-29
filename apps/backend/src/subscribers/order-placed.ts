@@ -274,7 +274,9 @@ export default async function orderPlacedHandler({
       "items.variant_id",
       "items.thumbnail",
       "items.variant.images.url",
+      "items.variant.options.value",
       "items.product.images.url",
+      "items.product.metadata",
     ],
     filters: {
       id: event.data.id,
@@ -320,7 +322,20 @@ export default async function orderPlacedHandler({
     order.items
       ?.filter(Boolean)
       .map((item: any) => {
+        // Image du coloris choisi (metadata.colorImages + option variante).
+        const colorImages = item?.product?.metadata?.colorImages as
+          | Record<string, string[]>
+          | undefined
+        const optVal = (item?.variant?.options || [])
+          .map((o: any) => o?.value)
+          .find((v: string) => v && colorImages?.[v])
+        const colorImg =
+          optVal && colorImages
+            ? formatImageUrl(colorImages[optVal]?.[0])
+            : undefined
+
         const imageUrl =
+          colorImg ||
           soieEmailImage(item) ||
           formatImageUrl(
             item?.variant?.images?.[0]?.url ||
