@@ -225,15 +225,13 @@ const FEUTRES: ColorProduct = {
     "d'eau, lavable, sans odeur, trousse de transport incluse. Le set créatif qui occupe " +
     "les enfants des heures. Disponible de 24 à 80 couleurs.",
   cj_pid: "1414777796709978112",
-  thumbnail: `${FEU}/80.webp`,
+  thumbnail: `${FEU}/48.webp`,
   colors: [
     { value: "24 couleurs", vid: "1414777798127652864", sku: "", images: [`${FEU}/24.webp`] },
     { value: "30 couleurs", vid: "1414777798144430080", sku: "", images: [`${FEU}/30.webp`] },
     { value: "36 couleurs", vid: "1414777798152818688", sku: "", images: [`${FEU}/36.webp`] },
     { value: "40 couleurs", vid: "2508030943271601400", sku: "", images: [`${FEU}/40.webp`] },
     { value: "48 couleurs", vid: "1414777798161207296", sku: "", images: [`${FEU}/48.webp`] },
-    { value: "60 couleurs", vid: "1414777798169595904", sku: "", images: [`${FEU}/60.webp`] },
-    { value: "80 couleurs", vid: "1414777798182178816", sku: "", images: [`${FEU}/80.webp`] },
   ],
 }
 
