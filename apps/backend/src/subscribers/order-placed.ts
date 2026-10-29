@@ -277,6 +277,7 @@ export default async function orderPlacedHandler({
       "items.variant.options.value",
       "items.product.images.url",
       "items.product.metadata",
+      "items.product.categories.name",
     ],
     filters: {
       id: event.data.id,
@@ -343,6 +344,9 @@ export default async function orderPlacedHandler({
               item?.thumbnail
           )
         const title = escapeHtml(item?.title || "Produit")
+        const category = escapeHtml(
+          item?.product?.categories?.[0]?.name || ""
+        )
 
         return `
           <tr>
@@ -357,6 +361,11 @@ export default async function orderPlacedHandler({
                     }
                   </td>
                   <td style="padding-left:16px;" valign="middle">
+                    ${
+                      category
+                        ? `<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#b08a68;margin-bottom:3px;">${category}</div>`
+                        : ""
+                    }
                     <div style="font-size:15px;font-weight:700;color:#111;">
                       ${title}
                     </div>
