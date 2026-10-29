@@ -35,6 +35,8 @@ type ColorProduct = {
   cj_pid: string
   thumbnail: string
   colors: ColorVariant[]
+  /** Titre de l'option (défaut "Couleur"). Ex. "Modèle" pour le jawline. */
+  optionTitle?: string
 }
 
 const PORTE_CARTES: ColorProduct = {
@@ -120,6 +122,42 @@ const LIP: ColorProduct = {
   ],
 }
 
+const JAW = "/produits/jawline-trainer"
+const JAWLINE: ColorProduct = {
+  handle: "jawline-trainer-masseter",
+  title: "Jawline Trainer — exerciseur mâchoire",
+  price: 29,
+  category: "fun-enfants",
+  optionTitle: "Modèle",
+  description:
+    "Redessine ta ligne de mâchoire en quelques minutes par jour. Cet exerciseur " +
+    "en silicone alimentaire fait travailler les muscles masséters, comme une salle " +
+    "de sport pour le visage. Plusieurs modèles et niveaux de résistance, cordon de " +
+    "maintien inclus. Discret et réutilisable.",
+  cj_pid: "1679744815862386688",
+  thumbnail: `${JAW}/boule-rouge.webp`,
+  colors: [
+    // Boule à clips (5e génération)
+    { value: "Boule · Rouge", vid: "1679744816034353152", sku: "", images: [`${JAW}/boule-rouge.webp`] },
+    { value: "Boule · Bleu", vid: "1679744816076296192", sku: "", images: [`${JAW}/boule-bleu.webp`] },
+    { value: "Boule · Noir", vid: "1679744816051130368", sku: "", images: [`${JAW}/boule-noir.webp`] },
+    // Cube arrondi (2e génération)
+    { value: "Cube · Violet", vid: "1679744815916912640", sku: "", images: [`${JAW}/cube-violet.webp`] },
+    { value: "Cube · Rouge", vid: "1679744815933689856", sku: "", images: [`${JAW}/cube-rouge.webp`] },
+    { value: "Cube · Noir", vid: "1679744815883358208", sku: "", images: [`${JAW}/cube-noir.webp`] },
+    { value: "Cube · Rose", vid: "1679744815967244288", sku: "", images: [`${JAW}/cube-rose.webp`] },
+    { value: "Cube · Bleu", vid: "1679744815900135424", sku: "", images: [`${JAW}/cube-bleu.webp`] },
+    { value: "Cube · Gris", vid: "1679744815950467072", sku: "", images: [`${JAW}/cube-gris.webp`] },
+    // Carré 6 trous (3e génération)
+    { value: "6 trous · Gris", vid: "1679744816000798720", sku: "", images: [`${JAW}/6trous-gris.webp`] },
+    { value: "6 trous · Bleu", vid: "1679744816017575936", sku: "", images: [`${JAW}/6trous-bleu.webp`] },
+    { value: "6 trous · Jaune", vid: "1679744815984021504", sku: "", images: [`${JAW}/6trous-jaune.webp`] },
+    // Octogone (6e génération)
+    { value: "Octogone · Noir", vid: "1679744816097267712", sku: "", images: [`${JAW}/octogone-noir.webp`] },
+    { value: "Octogone · Gris", vid: "1679744816114044928", sku: "", images: [`${JAW}/octogone-gris.webp`] },
+  ],
+}
+
 export default async function setColorVariants({
   container,
 }: {
@@ -153,7 +191,7 @@ export default async function setColorVariants({
   })
   const shippingProfile = profiles[0]
 
-  for (const p of [PORTE_CARTES, EMS, HALO, LIP]) {
+  for (const p of [PORTE_CARTES, EMS, HALO, LIP, JAWLINE]) {
     // Supprime l'ancien produit mono-variante.
     const { data: existing } = await query.graph({
       entity: "product",
@@ -186,12 +224,17 @@ export default async function setColorVariants({
             description: p.description,
             thumbnail: p.thumbnail,
             images: allImgs.map((url) => ({ url })),
-            options: [{ title: "Couleur", values: p.colors.map((c) => c.value) }],
+            options: [
+              {
+                title: p.optionTitle || "Couleur",
+                values: p.colors.map((c) => c.value),
+              },
+            ],
             variants: p.colors.map((c, i) => ({
               title: c.value,
               sku: `${p.handle.toUpperCase().slice(0, 18)}-${i + 1}`,
               manage_inventory: false,
-              options: { Couleur: c.value },
+              options: { [p.optionTitle || "Couleur"]: c.value },
               prices: [
                 { amount: p.price, currency_code: "chf" },
                 { amount: p.price, currency_code: "eur" },
