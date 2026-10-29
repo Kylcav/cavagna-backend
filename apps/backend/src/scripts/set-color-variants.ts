@@ -181,7 +181,7 @@ const ASPI = "/produits/aspirateur"
 const ASPIRATEUR: ColorProduct = {
   handle: "aspirateur-robot-18000-pa",
   title: "Robot balai & laveur 3-en-1",
-  price: 199,
+  price: 99,
   category: "tech-maison",
   description:
     "Un robot malin qui balaie, aspire et passe la serpillière en un seul passage. " +
