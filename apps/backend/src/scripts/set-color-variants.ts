@@ -176,6 +176,47 @@ const BALLE: ColorProduct = {
   ],
 }
 
+const PROJECTEUR: ColorProduct = {
+  handle: "projecteur-mini-hd",
+  title: "Mini projecteur portable HD",
+  price: 89,
+  category: "tech-maison",
+  description:
+    "Transformez votre salon en cinéma. Ce mini projecteur portable HD se connecte " +
+    "à votre téléphone, console ou clé USB et projette une grande image sur n'importe " +
+    "quel mur. Compact, léger, prêt à offrir. Disponible en noir et blanc.",
+  cj_pid: "2610280308421600400",
+  thumbnail: "/produits/projecteur/noir.webp",
+  colors: [
+    { value: "Noir", vid: "2610280308421601601", sku: "CJYD352474102BY", images: ["/produits/projecteur/noir.webp"] },
+    { value: "Blanc", vid: "2610280308421601600", sku: "CJYD352474101AZ", images: ["/produits/projecteur/blanc.webp"] },
+  ],
+}
+
+const FEU = "/produits/feutres-coloriage"
+const FEUTRES: ColorProduct = {
+  handle: "feutres-coloriage-double-pointe",
+  title: "Feutres de coloriage double-pointe",
+  price: 29,
+  category: "fun-enfants",
+  optionTitle: "Taille",
+  description:
+    "Deux pointes (fine + large) pour dessiner, colorier et écrire. Encre vive à base " +
+    "d'eau, lavable, sans odeur, trousse de transport incluse. Le set créatif qui occupe " +
+    "les enfants des heures. Disponible de 24 à 80 couleurs.",
+  cj_pid: "1414777796709978112",
+  thumbnail: `${FEU}/80.webp`,
+  colors: [
+    { value: "24 couleurs", vid: "1414777798127652864", sku: "", images: [`${FEU}/24.webp`] },
+    { value: "30 couleurs", vid: "1414777798144430080", sku: "", images: [`${FEU}/30.webp`] },
+    { value: "36 couleurs", vid: "1414777798152818688", sku: "", images: [`${FEU}/36.webp`] },
+    { value: "40 couleurs", vid: "2508030943271601400", sku: "", images: [`${FEU}/40.webp`] },
+    { value: "48 couleurs", vid: "1414777798161207296", sku: "", images: [`${FEU}/48.webp`] },
+    { value: "60 couleurs", vid: "1414777798169595904", sku: "", images: [`${FEU}/60.webp`] },
+    { value: "80 couleurs", vid: "1414777798182178816", sku: "", images: [`${FEU}/80.webp`] },
+  ],
+}
+
 export default async function setColorVariants({
   container,
 }: {
@@ -209,7 +250,7 @@ export default async function setColorVariants({
   })
   const shippingProfile = profiles[0]
 
-  for (const p of [PORTE_CARTES, EMS, HALO, LIP, JAWLINE, BALLE]) {
+  for (const p of [PORTE_CARTES, EMS, HALO, LIP, JAWLINE, BALLE, PROJECTEUR, FEUTRES]) {
     // Supprime l'ancien produit mono-variante.
     const { data: existing } = await query.graph({
       entity: "product",
