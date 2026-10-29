@@ -164,9 +164,9 @@ export default async function setColorVariants({
             thumbnail: p.thumbnail,
             images: allImgs.map((url) => ({ url })),
             options: [{ title: "Couleur", values: p.colors.map((c) => c.value) }],
-            variants: p.colors.map((c) => ({
+            variants: p.colors.map((c, i) => ({
               title: c.value,
-              sku: `${p.handle.toUpperCase().slice(0, 16)}-${c.value.slice(0, 3).toUpperCase()}`,
+              sku: `${p.handle.toUpperCase().slice(0, 18)}-${i + 1}`,
               manage_inventory: false,
               options: { Couleur: c.value },
               prices: [
