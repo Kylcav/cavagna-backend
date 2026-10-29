@@ -61,9 +61,10 @@ export default async function addMilkAndFixes({
     channels[0]
   const { data: profiles } = await query.graph({
     entity: "shipping_profile",
-    fields: ["id"],
+    fields: ["id", "name"],
   })
-  const shippingProfile = profiles[0]
+  const shippingProfile =
+    profiles.find((p: any) => /gratuit/i.test(p.name)) || profiles[0]
 
   /* --------- 1. Machine à lait portable (si pas déjà créée) --------- */
   const { data: exists } = await query.graph({

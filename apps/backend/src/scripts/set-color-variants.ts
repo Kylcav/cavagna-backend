@@ -286,9 +286,11 @@ export default async function setColorVariants({
     channels[0]
   const { data: profiles } = await query.graph({
     entity: "shipping_profile",
-    fields: ["id"],
+    fields: ["id", "name"],
   })
-  const shippingProfile = profiles[0]
+  // Profil "Livraison gratuite" (celui qui couvre le checkout), sinon le 1er.
+  const shippingProfile =
+    profiles.find((p: any) => /gratuit/i.test(p.name)) || profiles[0]
 
   for (const p of [PORTE_CARTES, EMS, HALO, LIP, JAWLINE, BALLE, PROJECTEUR, FEUTRES, POELE, ASPIRATEUR]) {
     // Supprime l'ancien produit mono-variante.
