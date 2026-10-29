@@ -309,9 +309,9 @@ export default async function orderPlacedHandler({
     process.env.STORE_COUNTRY_CODE ||
     "ch"
 
-  // Lien "suivre ma commande" : espace compte. L'invité crée un compte (ou se
+  // Lien "suivre ma commande" : page compte. L'invité crée un compte (ou se
   // connecte), puis suit sa commande via l'onglet Commandes. SITE_URL (jamais localhost).
-  const orderUrl = `${SITE_URL}/${countryCode}/account/orders`
+  const orderUrl = `${SITE_URL}/${countryCode}/account`
 
   const deliveryEstimate = escapeHtml(
     order.shipping_methods?.[0]?.name || "Livraison standard"
