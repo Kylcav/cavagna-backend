@@ -197,7 +197,9 @@ export default async function setWalletStore({
     await updateProductsWorkflow(container).run({
       input: {
         selector: { id: popup[0].id },
-        update: { categories: [{ id: catIdByHandle["pop-up"] }] },
+        // Runtime attend "categories" (et refuse "category_ids"), mais les
+        // types TS veulent l'inverse → cast pour satisfaire le build.
+        update: { categories: [{ id: catIdByHandle["pop-up"] }] } as any,
       },
     })
     logger.info("🔖 Porte-cartes pop-up existant rangé dans Pop-up.")
