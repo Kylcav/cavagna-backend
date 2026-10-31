@@ -169,7 +169,7 @@ export default async function setWalletStore({
             ],
             variants: p.colors.map((c, i) => ({
               title: c.value,
-              sku: `${p.slug.toUpperCase().slice(0, 18)}-${i + 1}`,
+              sku: `${p.slug.toUpperCase()}-${i + 1}`,
               manage_inventory: false,
               options: { Couleur: c.value },
               prices: [
