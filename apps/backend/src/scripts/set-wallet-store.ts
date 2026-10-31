@@ -197,7 +197,7 @@ export default async function setWalletStore({
     await updateProductsWorkflow(container).run({
       input: {
         selector: { id: popup[0].id },
-        update: { category_ids: [catIdByHandle["pop-up"]] },
+        update: { categories: [{ id: catIdByHandle["pop-up"] }] },
       },
     })
     logger.info("🔖 Porte-cartes pop-up existant rangé dans Pop-up.")
