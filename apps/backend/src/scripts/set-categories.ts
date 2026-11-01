@@ -14,24 +14,25 @@ import {
  *  npx medusa exec ./src/scripts/set-categories.ts
  */
 const NEW_CATS = [
-  { name: "Porte-cartes pop-up", handle: "porte-cartes-popup", rank: 0 },
-  { name: "Porte-cartes sans pop-up", handle: "porte-cartes-sans-popup", rank: 1 },
+  { name: "Fibre de carbone", handle: "carbone", rank: 0 },
+  { name: "Cuir", handle: "cuir", rank: 1 },
+  { name: "Métal", handle: "metal", rank: 2 },
 ]
 
 const ASSIGN: Record<string, string> = {
-  "porte-cartes-metal-homme": "porte-cartes-sans-popup",
-  "porte-cartes-metal-anti-scan": "porte-cartes-sans-popup",
-  "porte-cartes-rfid-capacite": "porte-cartes-sans-popup",
-  "porte-cartes-popup-alu": "porte-cartes-popup",
-  "porte-cartes-popup-auto": "porte-cartes-popup",
-  "porte-cartes-carbone-popup": "porte-cartes-popup",
-  "porte-cartes-boitier-alu": "porte-cartes-popup",
-  "porte-cartes-alu-compact": "porte-cartes-popup",
-  "portefeuille-carbone-pliable": "porte-cartes-popup",
-  "portefeuille-carbone-poussoir": "porte-cartes-popup",
+  "porte-cartes-popup-auto": "carbone",
+  "porte-cartes-carbone-popup": "carbone",
+  "portefeuille-carbone-poussoir": "carbone",
+  "portefeuille-carbone-pliable": "carbone",
+  "porte-cartes-popup-alu": "carbone",
+  "porte-cartes-boitier-alu": "cuir",
+  "porte-cartes-alu-compact": "cuir",
+  "porte-cartes-metal-anti-scan": "cuir",
+  "porte-cartes-metal-homme": "metal",
+  "porte-cartes-rfid-capacite": "metal",
 }
 
-const OLD_CATS = ["porte-monnaie"]
+const OLD_CATS = ["porte-cartes-popup", "porte-cartes-sans-popup"]
 
 export default async function setCategories({ container }: { container: MedusaContainer }) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
