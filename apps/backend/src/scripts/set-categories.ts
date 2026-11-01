@@ -14,14 +14,11 @@ import {
  *  npx medusa exec ./src/scripts/set-categories.ts
  */
 const NEW_CATS = [
-  { name: "Porte-monnaie", handle: "porte-monnaie", rank: 0 },
+  { name: "Porte-cartes pop-up", handle: "porte-cartes-popup", rank: 0 },
   { name: "Porte-cartes sans pop-up", handle: "porte-cartes-sans-popup", rank: 1 },
-  { name: "Porte-cartes pop-up", handle: "porte-cartes-popup", rank: 2 },
 ]
 
 const ASSIGN: Record<string, string> = {
-  "portefeuille-carbone-pliable": "porte-monnaie",
-  "portefeuille-carbone-poussoir": "porte-monnaie",
   "porte-cartes-metal-homme": "porte-cartes-sans-popup",
   "porte-cartes-metal-anti-scan": "porte-cartes-sans-popup",
   "porte-cartes-rfid-capacite": "porte-cartes-sans-popup",
@@ -30,9 +27,11 @@ const ASSIGN: Record<string, string> = {
   "porte-cartes-carbone-popup": "porte-cartes-popup",
   "porte-cartes-boitier-alu": "porte-cartes-popup",
   "porte-cartes-alu-compact": "porte-cartes-popup",
+  "portefeuille-carbone-pliable": "porte-cartes-popup",
+  "portefeuille-carbone-poussoir": "porte-cartes-popup",
 }
 
-const OLD_CATS = ["pop-up", "metal-aluminium", "fibre-carbone"]
+const OLD_CATS = ["porte-monnaie"]
 
 export default async function setCategories({ container }: { container: MedusaContainer }) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
